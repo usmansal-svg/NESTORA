@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
   Package, Receipt, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
-  LayoutGrid, Copy, MapPin, Send, Phone, Type, UserCheck, FileText,
+  LayoutGrid, Copy, MapPin, Phone, Type, UserCheck, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDemo } from "@/lib/store";
@@ -35,7 +35,6 @@ export default function ResidentHome() {
   const s = useDemo();
   const live = useLiveUtilities();
   const [payOpen, setPayOpen] = React.useState(false);
-  const [ask, setAsk] = React.useState("");
   const [big, setBig] = React.useState(false);
   React.useEffect(() => { try { setBig(localStorage.getItem("nestora-big-text") === "1"); } catch {} }, []);
   const toggleBig = () => setBig((b) => { try { localStorage.setItem("nestora-big-text", b ? "0" : "1"); } catch {} return !b; });
@@ -55,14 +54,13 @@ export default function ResidentHome() {
     { href: "/resident/building/security", label: "Security", sub: "Guard desk, 24 hours", icon: ShieldCheck },
     { href: "/resident/building/staff", label: "My house staff", sub: "Maid, driver, cook passes", icon: UserCheck },
     { href: "/resident/explore/household-help", label: "Hire house help", sub: "Verified workers", icon: Users },
-    { href: "/resident/building/announcements", label: "Notices", sub: "News, polls, events", icon: Megaphone },
     { href: "/resident/building/utilities", label: "Water & power", sub: live.grid === "On" ? "All normal" : "Outage now", icon: Droplets },
     { href: "/resident/building/parking", label: "Parking", sub: "My bays, guest parking", icon: CircleParking },
     { href: "/resident/building/amenities", label: "Book a facility", sub: "Pool, gym, hall", icon: CalendarCheck },
     { href: "/resident/building/documents", label: "Documents", sub: "Bylaws, meetings", icon: FileText },
+    { href: "/resident/explore", label: "More services", sub: "Food, repairs, salon", icon: LayoutGrid },
   ];
   const upcoming = s.bookings.filter((b) => ["Upcoming", "Confirmed", "In Progress"].includes(b.status)).sort((a, b) => +new Date(a.date) - +new Date(b.date));
-  const ann = s.announcements.slice(0, 3);
   const staffIn = s.staff.filter((x) => x.status === "active" && x.log[0] && !x.log[0].out);
 
   // Residents only need to hear about building services when something affects them.
@@ -85,7 +83,6 @@ export default function ResidentHome() {
               <div className="text-[12.5px] text-white/60">{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}</div>
               <div className="mt-0.5"><ApartmentSwitcher /></div>
             </div>
-            <Link href="/resident/assistant" className="grid size-10 place-items-center rounded-full bg-white/10 text-lime-accent transition hover:bg-white/15" aria-label="Nestora AI"><Sparkles className="size-[19px]" /></Link>
             <BellButton dark />
           </div>
           <div className="mt-6 flex items-end justify-between gap-3">
@@ -154,9 +151,6 @@ export default function ResidentHome() {
               </Link>
             ))}
           </div>
-          <Link href="/resident/explore" className={cn("mt-3 flex items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card font-semibold text-pine-800 shadow-soft transition active:scale-[0.98]", big ? "min-h-[80px] text-[21px]" : "min-h-[72px] text-[18px]")}>
-            <LayoutGrid className="size-6 text-pine-600" /> Everything else
-          </Link>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <SosButton trigger={
               <button className={cn("flex w-full items-center justify-center gap-3 rounded-2xl bg-danger font-semibold text-white shadow-lift active:scale-[0.98]", big ? "min-h-[84px] text-[21px]" : "min-h-[76px] text-[19px]")}>
@@ -168,15 +162,6 @@ export default function ResidentHome() {
             </button>
           </div>
 
-          {/* Nestora AI bar */}
-          <form
-            onSubmit={(e) => { e.preventDefault(); window.location.href = `/resident/assistant?q=${encodeURIComponent(ask || "How much maintenance do I owe?")}`; }}
-            className="mt-5 flex items-center gap-3 rounded-2xl border border-pine-200 bg-gradient-to-r from-pine-50 to-lime-soft/60 p-2 pl-4"
-          >
-            <Sparkles className="size-5 shrink-0 text-pine-600" />
-            <input value={ask} onChange={(e) => setAsk(e.target.value)} placeholder="Ask Nestora AI — “Is my parcel ready?”, “Find me a cook”" className="h-10 min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-pine-900/45" />
-            <Button size="icon" type="submit" aria-label="Ask"><Send /></Button>
-          </form>
 
           {/* Upcoming */}
           <Section title="Upcoming" href="/resident/bookings">
@@ -270,22 +255,6 @@ export default function ResidentHome() {
 
         {/* RIGHT RAIL */}
         <aside className="min-w-0 space-y-5">
-          <Section title="Announcements" href="/resident/building/announcements" className="mt-0 lg:mt-0">
-            <div className="space-y-2.5">
-              {ann.map((a) => (
-                <Link key={a.id} href="/resident/building/announcements" className="block rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift">
-                  <div className="flex items-center gap-2">
-                    <Badge variant={a.category === "Maintenance" ? "warn" : a.category === "Poll" ? "violet" : a.category === "Event" ? "lime" : "muted"}>{a.category === "Poll" ? (a.poll?.formal ? "Formal vote" : "Poll") : a.category}</Badge>
-                    {a.pinned && <Badge variant="outline">Pinned</Badge>}
-                    <span className="ml-auto text-[11.5px] text-muted-foreground">{ago(a.at)}</span>
-                  </div>
-                  <div className="mt-2 font-semibold leading-snug">{a.title}</div>
-                  <div className="mt-1 line-clamp-2 text-[13px] text-muted-foreground">{a.body}</div>
-                </Link>
-              ))}
-            </div>
-          </Section>
-
           <Section title="Home activity">
             <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft">
               <div className="space-y-3.5">

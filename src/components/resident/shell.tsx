@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, CalendarCheck, Compass, Home, Sparkles, UserRound, Siren } from "lucide-react";
+import { Bell, Megaphone, CalendarCheck, Compass, Home, Sparkles, UserRound, Siren } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDemo } from "@/lib/store";
 import { Logo } from "@/components/shared/logo";
@@ -11,12 +11,13 @@ import { SosButton } from "./sos";
 
 export const RES_TABS = [
   { href: "/resident", label: "Home", icon: Home },
+  { href: "/resident/building/announcements", label: "Notices", icon: Megaphone },
   { href: "/resident/explore", label: "Explore", icon: Compass },
   { href: "/resident/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/resident/account", label: "Account", icon: UserRound },
 ];
 
-const isActive = (path: string, href: string) => (href === "/resident" ? path === "/resident" || path.startsWith("/resident/building") : path.startsWith(href));
+const isActive = (path: string, href: string) => (href === "/resident" ? path === "/resident" || (path.startsWith("/resident/building") && !path.startsWith("/resident/building/announcements")) : path.startsWith(href));
 
 export function ResidentShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();

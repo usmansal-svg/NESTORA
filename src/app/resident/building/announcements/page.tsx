@@ -1,4 +1,5 @@
 "use client";
+import { BellButton } from "@/components/resident/shell";
 import * as React from "react";
 import { CalendarDays, Check, Eye, Gavel, MapPin, Megaphone, Pin, Vote } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +20,7 @@ export default function AnnouncementsPage() {
 
   return (
     <div>
-      <PageHeader back="/resident" title="Notices & community" subtitle="Announcements, polls, formal votes and events" />
+      <PageHeader title="Notices" actions={<BellButton />} subtitle="Announcements, polls, formal votes and events" />
       <Chips value={f} onChange={setF} options={[{ value: "all", label: "All" }, { value: "Notice", label: "Notices" }, { value: "Maintenance", label: "Maintenance" }, { value: "Poll", label: "Polls & votes" }, { value: "Event", label: "Events" }]} />
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {list.map((a) => (
