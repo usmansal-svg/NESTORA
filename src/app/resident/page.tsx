@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   CalendarCheck, ChevronRight, CircleParking, Droplets, 
   Package, Receipt, ShieldCheck, Siren, UserPlus, Users, Wrench, Zap,
-  LayoutGrid, MapPin, Phone, Type, UserCheck, FileText,
+  LayoutGrid, MapPin, Phone, UserCheck, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDemo } from "@/lib/store";
@@ -31,9 +31,7 @@ export default function ResidentHome() {
   const s = useDemo();
   const live = useLiveUtilities();
   const [payOpen, setPayOpen] = React.useState(false);
-  const [big, setBig] = React.useState(false);
-  React.useEffect(() => { try { setBig(localStorage.getItem("nestora-big-text") === "1"); } catch {} }, []);
-  const toggleBig = () => setBig((b) => { try { localStorage.setItem("nestora-big-text", b ? "0" : "1"); } catch {} return !b; });
+  const big = false; // single, already-large size (the text-size toggle was removed)
   const apt = APARTMENTS.find((a) => a.id === s.apartment)!;
   const pending = s.visitors.filter((v) => v.status === "pending" && v.apt === "A-1204");
   const dueBill = s.bills.find((b) => b.status !== "paid");
@@ -85,9 +83,6 @@ export default function ResidentHome() {
               </h1>
               <p className={cn("mt-1.5 flex items-center gap-1.5 text-white/65", big ? "text-[16px]" : "text-[13px]")}><MapPin className="size-3.5 shrink-0" /> {apt.building}, Tower {apt.tower} · Apt {apt.unit}</p>
             </div>
-            <button onClick={toggleBig} aria-pressed={big} className={cn("flex shrink-0 items-center gap-1.5 rounded-2xl px-3 py-2.5 text-[15px] font-semibold ring-1 transition", big ? "bg-lime-accent text-pine-950 ring-lime-accent" : "bg-white/10 text-white ring-white/20")}>
-              <Type className="size-5" /> {big ? "Normal" : "Bigger"}
-            </button>
           </div>
           {notices.map((n) => (
             <Link key={n.text} href="/resident/building/utilities" className="mt-4 flex items-center gap-2.5 rounded-2xl bg-white/[0.08] px-3.5 py-2.5 text-[14px] ring-1 ring-white/10 backdrop-blur">

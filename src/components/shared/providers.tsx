@@ -5,7 +5,7 @@ import { enableCrossTabSync, useDemo } from "@/lib/store";
 import { TooltipProvider } from "@/components/ui/misc";
 import { DemoSwitcher } from "./demo-switcher";
 import { LogoMark } from "./logo";
-import { BrandText } from "./brand";
+import { BrandText, LOCKED_THEME } from "./brand";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = React.useState(false);
@@ -18,6 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const setTheme = useDemo((s) => s.setTheme);
   React.useEffect(() => {
     if (!ready) return;
+    if (LOCKED_THEME) return setTheme(LOCKED_THEME);
     const q = new URLSearchParams(window.location.search).get("theme");
     if (q === "emaar" || q === "nestora") setTheme(q);
   }, [ready, setTheme]);

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArrowUpRight, RotateCcw, Sparkles, X } from "lucide-react";
 import { ROLES } from "@/lib/roles";
 import { useDemo } from "@/lib/store";
-import { ThemeToggle } from "./brand";
+import { LOCKED_THEME, ThemeToggle } from "./brand";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -49,10 +49,10 @@ export function DemoSwitcher() {
               </div>
               <button onClick={() => setOpen(false)} className="grid size-8 place-items-center rounded-full bg-secondary"><X className="size-4" /></button>
             </div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-secondary/60 p-3">
+            {!LOCKED_THEME && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-secondary/60 p-3">
               <div className="text-sm"><div className="font-medium">Theme</div><div className="text-xs text-muted-foreground">General NESTORA, or the Emaar Oceanfront pitch edition</div></div>
               <ThemeToggle />
-            </div>
+            </div>}
             <div className="grid gap-2 sm:grid-cols-2">
               {ROLES.map((r) => {
                 const active = role?.id === r.id;

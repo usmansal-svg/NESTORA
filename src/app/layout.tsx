@@ -13,13 +13,13 @@ export const metadata: Metadata = {
   description: "The operating system for residential communities. Demo: Ocean Heights, DHA Karachi.",
 };
 
-export const viewport: Viewport = { themeColor: "#0f3d33", width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#0d2440", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");var t=q||(JSON.parse(localStorage.getItem("nestora-demo-v1")||"{}").state||{}).theme;if(t==="emaar")document.documentElement.dataset.theme="emaar"}catch(e){}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `document.documentElement.dataset.theme="emaar"` }} />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${urdu.variable} antialiased`}>
         <Providers>{children}</Providers>

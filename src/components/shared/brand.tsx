@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils";
  * "nestora" — the general NESTORA product (demo building: Ocean Heights).
  * "emaar"   — a co-branded pitch edition for Emaar Pakistan (Emaar Oceanfront, Karachi).
  */
+/**
+ * While set, the app runs in this theme only and the theme switcher is hidden.
+ * Set to null to bring back both themes (the NESTORA theme code is untouched).
+ */
+export const LOCKED_THEME: "nestora" | "emaar" | null = "emaar";
+
 export const BRANDS = {
   nestora: { building: "Ocean Heights", community: "DHA Phase VIII", area: "DHA, Karachi", short: "OH", partner: null as string | null, hero: null as string | null },
   emaar: { building: "Panorama", community: "Emaar Oceanfront", area: "Emaar Oceanfront, DHA Phase VIII, Karachi", short: "PN", partner: "EMAAR", hero: "/brand/emaar-oceanfront.jpg" },
@@ -66,6 +72,7 @@ export function EmaarLogo({ className, inverted }: { className?: string; inverte
 export function ThemeToggle({ className, dark }: { className?: string; dark?: boolean }) {
   const theme = useDemo((s) => s.theme);
   const setTheme = useDemo((s) => s.setTheme);
+  if (LOCKED_THEME) return null;
   const pick = (t: "nestora" | "emaar") => {
     if (t === theme) return;
     setTheme(t);

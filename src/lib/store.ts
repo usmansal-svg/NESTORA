@@ -93,7 +93,7 @@ const initial = () => ({
   ...makeSeed(),
   apartment: "A-1204",
   lang: "en" as const,
-  theme: "nestora" as "nestora" | "emaar",
+  theme: "emaar" as "nestora" | "emaar", // default while the Emaar edition is the only theme (see LOCKED_THEME)
   cart: [] as CartItem[],
   savedProviders: ["pv-cooltech", "pv-saleem"],
   guardOnline: true,
