@@ -45,7 +45,7 @@ export default function SecurityPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Security" subtitle="Gate 1 · Main entrance · 6 guards on duty" />
+      <PageHeader back="/resident" title="Security" subtitle="Gate 1 · Main entrance · 6 guards on duty" />
       <div className="relative overflow-hidden rounded-3xl bg-pine-900 p-5 text-white">
         <div className="flex items-center gap-3">
           <Avatar src={face("m1")} name="Rizwan Ali" className="size-12 ring-2 ring-white/20" />

@@ -41,7 +41,7 @@ export default function ParcelsPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="My parcels" subtitle="NESTORA Smart Parcel Lockers · 3 banks · 72 compartments" />
+      <PageHeader back="/resident" title="My parcels" subtitle="NESTORA Smart Parcel Lockers · 3 banks · 72 compartments" />
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-pine-800 to-pine-950 p-6 text-white">
           <div className="absolute right-0 top-0 grid h-full w-40 grid-cols-3 gap-1.5 p-4 opacity-[0.12]">{Array.from({ length: 18 }).map((_, i) => <div key={i} className="rounded-md border border-white" />)}</div>

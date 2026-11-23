@@ -26,7 +26,7 @@ const COMMITTEE = [
 export default function DocumentsPage() {
   return (
     <div>
-      <PageHeader back="/resident/building" title="Documents & governance" subtitle="Ocean Heights Owners' Association" />
+      <PageHeader back="/resident" title="Documents & governance" subtitle="Ocean Heights Owners' Association" />
       <div className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
         <Section title="Documents" className="mt-0">
           <List>{DOCS.map((d) => <Row key={d.t} icon={d.i} tone="stone" title={d.t} subtitle={d.s} trailing={<Button variant="ghost" size="icon-sm" onClick={() => toast.success("Downloading", { description: d.t })}><Download /></Button>} chevron={false} />)}</List>

@@ -25,7 +25,7 @@ export default function UtilitiesPage() {
   const u = useLiveUtilities();
   return (
     <div>
-      <PageHeader back="/resident/building" title="Water & electricity" subtitle={<span className="flex items-center gap-1.5"><LiveDot /> Live from building sensors · updated just now</span>} />
+      <PageHeader back="/resident" title="Water & electricity" subtitle={<span className="flex items-center gap-1.5"><LiveDot /> Live from building sensors · updated just now</span>} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="K-Electric grid" value={u.grid === "On" ? "On" : "Outage"} sub={`${u.voltage} V · since ${u.gridSince}`} icon={Zap} tone="lime" />
         <Stat label="Generator" value={u.generator} sub={`${u.genRuntimeToday} h today`} icon={Power} tone="pine" />

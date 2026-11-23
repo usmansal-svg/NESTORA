@@ -25,7 +25,7 @@ export default function StaffPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Staff access" subtitle="Recurring permissions for household workers" actions={<Button size="sm" onClick={() => setAdd(true)}><Plus /> Add staff</Button>} />
+      <PageHeader back="/resident" title="Staff access" subtitle="Recurring permissions for household workers" actions={<Button size="sm" onClick={() => setAdd(true)}><Plus /> Add staff</Button>} />
       <div className="rounded-2xl bg-gradient-to-r from-violet-50 to-card p-4 text-sm ring-1 ring-violet-100">
         <b>How it works:</b> Guards automatically recognise staff during their schedule. Outside their window, you’ll be asked to approve. Looking for new help? <Link href="/resident/explore/household-help" className="font-medium text-pine-700 underline">Hire verified staff</Link>
       </div>

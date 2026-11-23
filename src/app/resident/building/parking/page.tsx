@@ -29,7 +29,7 @@ export default function ParkingPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Parking" subtitle="Your bays, vehicles and guest parking" actions={<Button size="sm" variant="outline" onClick={() => setAdd(true)}><Plus /> Vehicle</Button>} />
+      <PageHeader back="/resident" title="Parking" subtitle="Your bays, vehicles and guest parking" actions={<Button size="sm" variant="outline" onClick={() => setAdd(true)}><Plus /> Vehicle</Button>} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Your bays" value="P1-042, 043" sub="+ bike bay M-17" icon={Ticket} />
         <Stat label="Visitor bays free" value="9 / 24" sub="Ground level" icon={Car} tone="sky" />

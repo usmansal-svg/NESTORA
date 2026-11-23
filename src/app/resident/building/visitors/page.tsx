@@ -39,7 +39,7 @@ export default function VisitorsPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Visitors" subtitle="Pre-register guests and approve entry" actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> Invite</Button>} />
+      <PageHeader back="/resident" title="Visitors" subtitle="Pre-register guests and approve entry" actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> Invite</Button>} />
 
       <div className="grid gap-3 sm:grid-cols-3">
         {[["Expected today", groups.upcoming.filter((v) => new Date(v.validFrom).toDateString() === new Date().toDateString()).length], ["Inside now", groups.inside.length], ["This month", mine.length + 18]].map(([l, n]) => (

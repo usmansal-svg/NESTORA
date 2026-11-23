@@ -38,7 +38,7 @@ export default function ComplaintsPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Complaints & requests" subtitle="Track every issue from report to resolution" actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> New</Button>} />
+      <PageHeader back="/resident" title="Complaints & requests" subtitle="Track every issue from report to resolution" actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> New</Button>} />
       <Chips value={filter} onChange={setFilter} options={[{ value: "open", label: "Open", count: mine.filter((c) => c.status !== "Resolved").length }, { value: "resolved", label: "Resolved" }, { value: "all", label: "All" }]} />
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {list.length === 0 && <div className="md:col-span-2"><Empty icon={Wrench} title="No complaints here" body="Report a leak, lift issue or anything else — the supervisor is notified instantly." action={<Button onClick={() => setOpen(true)}><Plus /> Raise complaint</Button>} /></div>}

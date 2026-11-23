@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
   Package, Receipt, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
-  LayoutGrid, Copy, MapPin, Send, Phone, Type,
+  LayoutGrid, Copy, MapPin, Send, Phone, Type, UserCheck, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDemo } from "@/lib/store";
@@ -30,17 +30,6 @@ function greeting() {
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
-// The four everyday tasks, as big bilingual tiles. Pay and parcels surface above them when they need attention.
-const EASY = [
-  { en: "Let a guest in", ur: "مہمان کا اندراج", icon: UserPlus, href: "/resident/building/visitors?new=1", solid: "bg-pine-800" },
-  { en: "Report a problem", ur: "شکایت درج کریں", icon: Wrench, href: "/resident/building/complaints?new=1", solid: "bg-pine-700" },
-  { en: "House help", ur: "گھریلو ملازم", icon: Users, href: "/resident/explore/household-help", solid: "bg-pine-700" },
-  { en: "Call security", ur: "سیکیورٹی", icon: ShieldCheck, href: "/resident/building/security", solid: "bg-pine-800" },
-];
-
-function Urdu({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <span dir="rtl" lang="ur" className={cn("font-urdu leading-[1.9]", className)}>{children}</span>;
-}
 
 export default function ResidentHome() {
   const s = useDemo();
@@ -56,6 +45,22 @@ export default function ResidentHome() {
   const dueBill = s.bills.find((b) => b.status !== "paid");
   const due = dueBill ? dueBill.items.reduce((a, i) => a + i.amount, 0) : 0;
   const parcels = s.parcels.filter((p) => p.apt === "A-1204" && ["awaiting", "reception"].includes(p.status));
+  const openC = s.complaints.filter((c) => c.apt === "A-1204" && c.status !== "Resolved").length;
+  const expectedN = s.visitors.filter((v) => v.apt === "A-1204" && ["expected", "approved"].includes(v.status)).length;
+  const tiles: { href: string; label: string; sub: string; icon: typeof Zap; badge?: number }[] = [
+    { href: "/resident/building/visitors", label: "Visitors", sub: `${expectedN} expected today`, icon: UserPlus, badge: pending.length || undefined },
+    { href: "/resident/building/payments", label: "Payments", sub: due ? `${pkr(due)} due` : "All paid", icon: Receipt },
+    { href: "/resident/building/complaints", label: "Report a problem", sub: openC ? `${openC} open` : "Leak, light, lift", icon: Wrench },
+    { href: "/resident/building/parcels", label: "My parcels", sub: parcels.length ? `${parcels.length} ready` : "Smart lockers", icon: Package, badge: parcels.length || undefined },
+    { href: "/resident/building/security", label: "Security", sub: "Guard desk, 24 hours", icon: ShieldCheck },
+    { href: "/resident/building/staff", label: "My house staff", sub: "Maid, driver, cook passes", icon: UserCheck },
+    { href: "/resident/explore/household-help", label: "Hire house help", sub: "Verified workers", icon: Users },
+    { href: "/resident/building/announcements", label: "Notices", sub: "News, polls, events", icon: Megaphone },
+    { href: "/resident/building/utilities", label: "Water & power", sub: live.grid === "On" ? "All normal" : "Outage now", icon: Droplets },
+    { href: "/resident/building/parking", label: "Parking", sub: "My bays, guest parking", icon: CircleParking },
+    { href: "/resident/building/amenities", label: "Book a facility", sub: "Pool, gym, hall", icon: CalendarCheck },
+    { href: "/resident/building/documents", label: "Documents", sub: "Bylaws, meetings", icon: FileText },
+  ];
   const upcoming = s.bookings.filter((b) => ["Upcoming", "Confirmed", "In Progress"].includes(b.status)).sort((a, b) => +new Date(a.date) - +new Date(b.date));
   const ann = s.announcements.slice(0, 3);
   const staffIn = s.staff.filter((x) => x.status === "active" && x.log[0] && !x.log[0].out);
@@ -109,7 +114,7 @@ export default function ResidentHome() {
           {/* Needs your attention — only what affects this home right now */}
           {(pending.length > 0 || dueBill || parcels.length > 0) && (
             <>
-              <h2 className={cn("font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>Needs your attention <Urdu className={cn("ml-1 font-normal text-muted-foreground", big ? "text-[19px]" : "text-[16px]")}>توجہ طلب</Urdu></h2>
+              <h2 className={cn("font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>Needs your attention</h2>
               <div className="mt-3 space-y-3">
                 {pending.map((v) => <VisitorApprovalCard key={v.id} v={v} />)}
                 {dueBill && (
@@ -137,24 +142,25 @@ export default function ResidentHome() {
             </>
           )}
 
-          {/* Big, simple actions */}
-          <h2 className={cn("mt-7 font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>I want to… <Urdu className={cn("ml-1 font-normal text-muted-foreground", big ? "text-[19px]" : "text-[16px]")}>میں چاہتا ہوں</Urdu></h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {EASY.map((a) => (
-              <Link key={a.en} href={a.href} className={cn("flex flex-col items-center justify-center gap-1.5 rounded-2xl p-4 text-center text-white shadow-soft transition active:scale-[0.97]", a.solid, big ? "min-h-[176px]" : "min-h-[156px]")}>
+          {/* Big, simple actions: everything that used to live in the Building tab */}
+          <h2 className={cn("mt-7 font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>I want to…</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            {tiles.map((a, i) => (
+              <Link key={a.href} href={a.href} className={cn("relative flex flex-col items-center justify-center gap-1 rounded-2xl p-4 text-center text-white shadow-soft transition active:scale-[0.97]", i % 4 === 0 || i % 4 === 3 ? "bg-pine-800" : "bg-pine-700", big ? "min-h-[168px]" : "min-h-[148px]")}>
+                {a.badge ? <span className="absolute right-3 top-3 grid min-w-7 place-items-center rounded-full bg-danger px-2 py-0.5 text-[14px] font-semibold text-white">{a.badge}</span> : null}
                 <a.icon className={cn("text-lime-accent", big ? "size-12" : "size-11")} strokeWidth={1.9} />
-                <span className={cn("mt-1 font-semibold leading-tight", big ? "text-[21px]" : "text-[18px]")}>{a.en}</span>
-                <Urdu className={cn("text-white/75", big ? "text-[19px]" : "text-[16px]")}>{a.ur}</Urdu>
+                <span className={cn("mt-1.5 font-semibold leading-tight", big ? "text-[21px]" : "text-[18px]")}>{a.label}</span>
+                <span className={cn("leading-snug text-white/65", big ? "text-[16px]" : "text-[14px]")}>{a.sub}</span>
               </Link>
             ))}
           </div>
           <Link href="/resident/explore" className={cn("mt-3 flex items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card font-semibold text-pine-800 shadow-soft transition active:scale-[0.98]", big ? "min-h-[80px] text-[21px]" : "min-h-[72px] text-[18px]")}>
-            <LayoutGrid className="size-6 text-pine-600" /> Everything else · <Urdu className={cn("font-normal", big ? "text-[19px]" : "text-[16px]")}>باقی سب</Urdu>
+            <LayoutGrid className="size-6 text-pine-600" /> Everything else
           </Link>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <SosButton trigger={
               <button className={cn("flex w-full items-center justify-center gap-3 rounded-2xl bg-danger font-semibold text-white shadow-lift active:scale-[0.98]", big ? "min-h-[84px] text-[21px]" : "min-h-[76px] text-[19px]")}>
-                <Siren className="size-7" strokeWidth={2.2} /> SOS <Urdu className="text-[16px] font-normal text-white/85">ایمرجنسی</Urdu>
+                <Siren className="size-7" strokeWidth={2.2} /> Emergency SOS
               </button>
             } />
             <button onClick={() => toast("Calling the guard desk", { description: "Demo only. No call is placed." })} className={cn("flex items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card font-semibold text-pine-800 shadow-soft active:scale-[0.98]", big ? "min-h-[84px] text-[21px]" : "min-h-[76px] text-[19px]")}>

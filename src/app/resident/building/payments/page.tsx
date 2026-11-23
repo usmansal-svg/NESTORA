@@ -31,7 +31,7 @@ export default function PaymentsPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Maintenance & payments" subtitle={`Apartment ${s.apartment} · Ocean Heights Owners' Association`} />
+      <PageHeader back="/resident" title="Maintenance & payments" subtitle={`Apartment ${s.apartment} · Ocean Heights Owners' Association`} />
       <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
         <div className="relative overflow-hidden rounded-3xl bg-primary p-6 text-white">
           <div className="absolute -right-16 -top-16 size-56 rounded-full bg-lime-accent/10 blur-2xl" />

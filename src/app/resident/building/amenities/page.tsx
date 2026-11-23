@@ -33,7 +33,7 @@ export default function AmenitiesPage() {
 
   return (
     <div>
-      <PageHeader back="/resident/building" title="Amenities & facilities" subtitle={`${mine.length} upcoming reservation${mine.length === 1 ? "" : "s"}`} />
+      <PageHeader back="/resident" title="Amenities & facilities" subtitle={`${mine.length} upcoming reservation${mine.length === 1 ? "" : "s"}`} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {AMENITIES.map((a) => (
           <button key={a.id} onClick={() => { setSel(a); setSlot(undefined); }} className="group overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-soft transition hover:shadow-lift">
