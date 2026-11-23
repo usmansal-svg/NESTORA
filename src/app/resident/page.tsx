@@ -2,9 +2,9 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowRight, BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
-  Package, PlugZap, Receipt, Scissors, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
-  LayoutGrid, Copy, MapPin, Send,
+  BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
+  Package, Receipt, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
+  LayoutGrid, Copy, MapPin, Send, Phone, Type,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDemo } from "@/lib/store";
@@ -13,7 +13,7 @@ import { APARTMENTS, RESIDENT } from "@/data/seed";
 import { PROVIDERS } from "@/data/catalog";
 import { OFFERS, SELLERS } from "@/data/places";
 import { IMG } from "@/lib/img";
-import { ago, cn, fmtDate, fmtDateTime, pkr } from "@/lib/utils";
+import { ago, cn, fmtDateTime, pkr } from "@/lib/utils";
 import { Avatar } from "@/components/ui/misc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,31 +30,30 @@ function greeting() {
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
-const QUICK = [
-  { label: "Register visitor", icon: UserPlus, href: "/resident/building/visitors?new=1", tone: "bg-pine-50 text-pine-700" },
-  { label: "Pay bill", icon: Receipt, action: "pay", tone: "bg-lime-soft text-pine-800" },
-  { label: "Raise complaint", icon: Wrench, href: "/resident/building/complaints?new=1", tone: "bg-amber-soft text-amber-700" },
-  { label: "My parcels", icon: Package, href: "/resident/building/parcels", tone: "bg-sky-50 text-sky-700" },
-  { label: "Hire house help", icon: Users, href: "/resident/explore/household-help", tone: "bg-violet-50 text-violet-700" },
-  { label: "Home service", icon: Sparkles, href: "/resident/explore/home-services", tone: "bg-teal-50 text-teal-700" },
-  { label: "Order food", icon: UtensilsCrossed, href: "/resident/food", tone: "bg-rose-50 text-rose-700" },
-  { label: "Book EV charger", icon: PlugZap, href: "/resident/ev", tone: "bg-emerald-50 text-emerald-700" },
-  { label: "Book my barber", icon: Scissors, href: "/resident/explore/salon?sub=Men's%20haircut", tone: "bg-stone-100 text-stone-700" },
-  { label: "Contact security", icon: ShieldCheck, href: "/resident/building/security", tone: "bg-pine-50 text-pine-700" },
-  { label: "Emergency SOS", icon: Siren, action: "sos", tone: "bg-danger-soft text-danger" },
-  { label: "All services", icon: LayoutGrid, href: "/resident/explore", tone: "bg-secondary text-foreground/70" },
+// The four everyday tasks, as big bilingual tiles. Pay and parcels surface above them when they need attention.
+const EASY = [
+  { en: "Let a guest in", ur: "مہمان کا اندراج", icon: UserPlus, href: "/resident/building/visitors?new=1", solid: "bg-pine-800" },
+  { en: "Report a problem", ur: "شکایت درج کریں", icon: Wrench, href: "/resident/building/complaints?new=1", solid: "bg-pine-700" },
+  { en: "House help", ur: "گھریلو ملازم", icon: Users, href: "/resident/explore/household-help", solid: "bg-pine-700" },
+  { en: "Call security", ur: "سیکیورٹی", icon: ShieldCheck, href: "/resident/building/security", solid: "bg-pine-800" },
 ];
+
+function Urdu({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <span dir="rtl" lang="ur" className={cn("font-urdu leading-[1.9]", className)}>{children}</span>;
+}
 
 export default function ResidentHome() {
   const s = useDemo();
   const live = useLiveUtilities();
   const [payOpen, setPayOpen] = React.useState(false);
   const [ask, setAsk] = React.useState("");
+  const [big, setBig] = React.useState(false);
+  React.useEffect(() => { try { setBig(localStorage.getItem("nestora-big-text") === "1"); } catch {} }, []);
+  const toggleBig = () => setBig((b) => { try { localStorage.setItem("nestora-big-text", b ? "0" : "1"); } catch {} return !b; });
   const apt = APARTMENTS.find((a) => a.id === s.apartment)!;
   const pending = s.visitors.filter((v) => v.status === "pending" && v.apt === "A-1204");
   const expected = s.visitors.filter((v) => v.apt === "A-1204" && ["expected", "approved"].includes(v.status)).slice(0, 3);
   const dueBill = s.bills.find((b) => b.status !== "paid");
-  const lastPaid = s.bills.find((b) => b.status === "paid");
   const due = dueBill ? dueBill.items.reduce((a, i) => a + i.amount, 0) : 0;
   const parcels = s.parcels.filter((p) => p.apt === "A-1204" && ["awaiting", "reception"].includes(p.status));
   const upcoming = s.bookings.filter((b) => ["Upcoming", "Confirmed", "In Progress"].includes(b.status)).sort((a, b) => +new Date(a.date) - +new Date(b.date));
@@ -70,7 +69,7 @@ export default function ResidentHome() {
   return (
     <div className="pt-[max(env(safe-area-inset-top),12px)] lg:pt-8">
       {/* HERO */}
-      <section className="relative -mx-4 overflow-hidden bg-pine-900 px-4 pb-5 pt-4 text-white sm:mx-0 sm:rounded-[28px] sm:px-6 sm:pt-6 lg:px-8 lg:pt-7">
+      <section className="relative -mx-4 overflow-hidden bg-pine-900 px-4 pb-6 pt-4 text-white sm:mx-0 sm:rounded-[28px] sm:px-6 sm:pt-6 lg:px-8 lg:pt-7">
         <Photo id={IMG.building} w={1400} className="absolute inset-0 opacity-[0.22] [[data-theme=emaar]_&]:opacity-50" imgClassName="mix-blend-luminosity" />
         <div className="absolute inset-0 bg-gradient-to-b from-pine-950/30 via-pine-900/80 to-pine-900" />
         <div className="absolute -right-24 -top-24 size-72 rounded-full bg-lime-accent/10 blur-3xl" />
@@ -84,13 +83,19 @@ export default function ResidentHome() {
             <Link href="/resident/assistant" className="grid size-10 place-items-center rounded-full bg-white/10 text-lime-accent transition hover:bg-white/15" aria-label="Nestora AI"><Sparkles className="size-[19px]" /></Link>
             <BellButton dark />
           </div>
-          <h1 className="mt-6 font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
-            {greeting()}, <span className="italic text-lime-accent">{RESIDENT.first}</span>
-          </h1>
-          <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-white/65"><MapPin className="size-3.5" /> {apt.building}, Tower {apt.tower} · Apt {apt.unit} · {apt.area}, Karachi</p>
-
+          <div className="mt-6 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className={cn("font-display leading-[1.05] tracking-tight", big ? "text-[40px] sm:text-[46px]" : "text-[34px] sm:text-[42px]")}>
+                {greeting()}, <span className="italic text-lime-accent">{RESIDENT.first}</span>
+              </h1>
+              <p className={cn("mt-1.5 flex items-center gap-1.5 text-white/65", big ? "text-[16px]" : "text-[13px]")}><MapPin className="size-3.5 shrink-0" /> {apt.building}, Tower {apt.tower} · Apt {apt.unit}</p>
+            </div>
+            <button onClick={toggleBig} aria-pressed={big} className={cn("flex shrink-0 items-center gap-1.5 rounded-2xl px-3 py-2.5 text-[15px] font-semibold ring-1 transition", big ? "bg-lime-accent text-pine-950 ring-lime-accent" : "bg-white/10 text-white ring-white/20")}>
+              <Type className="size-5" /> {big ? "Normal" : "Bigger"}
+            </button>
+          </div>
           {notices.map((n) => (
-            <Link key={n.text} href="/resident/building/utilities" className="mt-4 flex items-center gap-2.5 rounded-2xl bg-white/[0.08] px-3.5 py-2.5 text-[13px] ring-1 ring-white/10 backdrop-blur">
+            <Link key={n.text} href="/resident/building/utilities" className="mt-4 flex items-center gap-2.5 rounded-2xl bg-white/[0.08] px-3.5 py-2.5 text-[14px] ring-1 ring-white/10 backdrop-blur">
               <n.icon className="size-4 shrink-0 text-amber-300" />
               <span className="min-w-0 flex-1">{n.text}</span>
               <ChevronRight className="size-4 shrink-0 text-white/50" />
@@ -101,76 +106,61 @@ export default function ResidentHome() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px] lg:gap-7">
         <div className="min-w-0">
-          {/* Pending approvals */}
-          {pending.length > 0 && (
-            <div className="mb-5 space-y-3">
-              {pending.map((v) => <VisitorApprovalCard key={v.id} v={v} />)}
-            </div>
+          {/* Needs your attention — only what affects this home right now */}
+          {(pending.length > 0 || dueBill || parcels.length > 0) && (
+            <>
+              <h2 className={cn("font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>Needs your attention <Urdu className={cn("ml-1 font-normal text-muted-foreground", big ? "text-[19px]" : "text-[16px]")}>توجہ طلب</Urdu></h2>
+              <div className="mt-3 space-y-3">
+                {pending.map((v) => <VisitorApprovalCard key={v.id} v={v} />)}
+                {dueBill && (
+                  <div className="flex items-center gap-4 rounded-2xl border border-border/70 bg-card p-4 shadow-soft">
+                    <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-lime-soft text-pine-800"><Receipt className="size-7" strokeWidth={1.9} /></span>
+                    <div className="min-w-0 flex-1">
+                      <div className={cn("font-semibold tabular", big ? "text-[20px]" : "text-[17px]")}>Bill {pkr(due)}</div>
+                      <div className={cn("text-muted-foreground", big ? "text-[17px]" : "text-[15px]")}>Please pay by 30 Nov</div>
+                      <Link href="/resident/building/payments" className="text-[13px] font-medium text-pine-700 underline-offset-2 hover:underline">See statement</Link>
+                    </div>
+                    <Button size="lg" className="h-12 rounded-xl px-5 text-[17px]" onClick={() => setPayOpen(true)}>Pay</Button>
+                  </div>
+                )}
+                {parcels.length > 0 && (
+                  <Link href="/resident/building/parcels" className="flex items-center gap-4 rounded-2xl bg-gradient-to-br from-pine-800 to-pine-950 p-4 text-white shadow-soft">
+                    <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-white/10 text-lime-accent"><Package className="size-7" strokeWidth={1.9} /></span>
+                    <div className="min-w-0 flex-1">
+                      <div className={cn("font-semibold", big ? "text-[20px]" : "text-[17px]")}>{parcels.length} parcel{parcels.length > 1 ? "s" : ""} waiting</div>
+                      <div className={cn("text-white/65", big ? "text-[17px]" : "text-[15px]")}>Tap to see your code</div>
+                    </div>
+                    <span className="rounded-xl bg-lime-accent px-5 py-3 text-[17px] font-semibold text-pine-950">Open</span>
+                  </Link>
+                )}
+              </div>
+            </>
           )}
 
-          {/* Finance */}
-          <div className="grid gap-3 sm:grid-cols-[1.25fr_1fr]">
-            <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-soft">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-muted-foreground">Outstanding maintenance</span>
-                {dueBill ? <Badge variant="warn">Due {fmtDate(dueBill.dueDate)}</Badge> : <Badge>All paid</Badge>}
-              </div>
-              <div className="mt-2 text-[32px] font-semibold tracking-tight tabular">{pkr(due)}</div>
-              <div className="mt-1 text-[12.5px] text-muted-foreground">
-                {dueBill ? `${dueBill.month} · includes Rs 500 late fee` : "You're all settled. Next bill on the 1st."}
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button className="flex-1" disabled={!dueBill} onClick={() => setPayOpen(true)}><Zap /> Quick Pay</Button>
-                <Button variant="outline" asChild><Link href="/resident/building/payments">Statement</Link></Button>
-              </div>
-              <div className="mt-4 flex items-center justify-between border-t pt-3 text-[12.5px]">
-                <span className="text-muted-foreground">Last payment</span>
-                <span className="font-medium">{lastPaid ? `${pkr(lastPaid.items.reduce((a, i) => a + i.amount, 0))} · ${fmtDate(lastPaid.paidAt!)} · ${lastPaid.method}` : "—"}</span>
-              </div>
-            </div>
-
-            {/* Parcels */}
-            <Link href="/resident/building/parcels" className="group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-pine-800 to-pine-950 p-5 text-white shadow-soft">
-              <div className="absolute -bottom-10 -right-8 size-40 rounded-full border-[18px] border-white/[0.04]" />
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-[13px] font-medium text-white/70"><Package className="size-4 text-lime-accent" /> Smart lockers</span>
-                <ArrowRight className="size-4 text-white/50 transition group-hover:translate-x-0.5" />
-              </div>
-              {parcels.length ? (
-                <>
-                  <div className="mt-2 text-[28px] font-semibold tracking-tight">{parcels.length} parcel{parcels.length > 1 ? "s" : ""} ready</div>
-                  <div className="mt-auto space-y-1.5 pt-3">
-                    {parcels.slice(0, 2).map((p) => (
-                      <div key={p.id} className="flex items-center justify-between rounded-xl bg-white/[0.08] px-3 py-2 text-[12.5px] ring-1 ring-white/10">
-                        <span className="truncate">{p.courier} · {p.compartment ? `Locker ${p.compartment}` : "Reception"}</span>
-                        <span className="font-mono text-[13px] font-semibold tracking-wider text-lime-accent">{p.pin}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="mt-2 text-lg font-semibold">No parcels waiting</div>
-              )}
-            </Link>
+          {/* Big, simple actions */}
+          <h2 className={cn("mt-7 font-semibold tracking-tight", big ? "text-[23px]" : "text-[20px]")}>I want to… <Urdu className={cn("ml-1 font-normal text-muted-foreground", big ? "text-[19px]" : "text-[16px]")}>میں چاہتا ہوں</Urdu></h2>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {EASY.map((a) => (
+              <Link key={a.en} href={a.href} className={cn("flex flex-col items-center justify-center gap-1.5 rounded-2xl p-4 text-center text-white shadow-soft transition active:scale-[0.97]", a.solid, big ? "min-h-[176px]" : "min-h-[156px]")}>
+                <a.icon className={cn("text-lime-accent", big ? "size-12" : "size-11")} strokeWidth={1.9} />
+                <span className={cn("mt-1 font-semibold leading-tight", big ? "text-[21px]" : "text-[18px]")}>{a.en}</span>
+                <Urdu className={cn("text-white/75", big ? "text-[19px]" : "text-[16px]")}>{a.ur}</Urdu>
+              </Link>
+            ))}
           </div>
-
-          {/* Quick actions */}
-          <Section title="Quick actions" className="mt-7">
-            <div className="grid grid-cols-4 gap-x-2 gap-y-4 rounded-2xl border border-border/70 bg-card p-4 shadow-soft sm:grid-cols-6">
-              {QUICK.map((q) => {
-                const inner = (
-                  <>
-                    <span className={cn("grid size-12 place-items-center rounded-2xl transition group-hover:scale-105 group-active:scale-95", q.tone)}><q.icon className="size-[22px]" strokeWidth={1.8} /></span>
-                    <span className="text-center text-[11.5px] font-medium leading-tight text-foreground/80">{q.label}</span>
-                  </>
-                );
-                const cls = "group flex flex-col items-center gap-1.5";
-                if (q.action === "sos") return <SosButton key={q.label} trigger={<button className={cls}>{inner}</button>} />;
-                if (q.action === "pay") return <button key={q.label} className={cls} onClick={() => (dueBill ? setPayOpen(true) : toast("No dues right now", { description: "Your account is fully paid." }))}>{inner}</button>;
-                return <Link key={q.label} href={q.href!} className={cls}>{inner}</Link>;
-              })}
-            </div>
-          </Section>
+          <Link href="/resident/explore" className={cn("mt-3 flex items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card font-semibold text-pine-800 shadow-soft transition active:scale-[0.98]", big ? "min-h-[80px] text-[21px]" : "min-h-[72px] text-[18px]")}>
+            <LayoutGrid className="size-6 text-pine-600" /> Everything else · <Urdu className={cn("font-normal", big ? "text-[19px]" : "text-[16px]")}>باقی سب</Urdu>
+          </Link>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <SosButton trigger={
+              <button className={cn("flex w-full items-center justify-center gap-3 rounded-2xl bg-danger font-semibold text-white shadow-lift active:scale-[0.98]", big ? "min-h-[84px] text-[21px]" : "min-h-[76px] text-[19px]")}>
+                <Siren className="size-7" strokeWidth={2.2} /> SOS <Urdu className="text-[16px] font-normal text-white/85">ایمرجنسی</Urdu>
+              </button>
+            } />
+            <button onClick={() => toast("Calling the guard desk", { description: "Demo only. No call is placed." })} className={cn("flex items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card font-semibold text-pine-800 shadow-soft active:scale-[0.98]", big ? "min-h-[84px] text-[21px]" : "min-h-[76px] text-[19px]")}>
+              <Phone className="size-6 text-pine-600" /> Guard desk
+            </button>
+          </div>
 
           {/* Nestora AI bar */}
           <form
