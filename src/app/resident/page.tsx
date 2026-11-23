@@ -2,8 +2,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowRight, BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Fuel, Megaphone,
-  Package, PlugZap, Receipt, Scissors, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap, ArrowUpDown,
+  ArrowRight, BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
+  Package, PlugZap, Receipt, Scissors, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
   LayoutGrid, Copy, MapPin, Send,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -61,15 +61,11 @@ export default function ResidentHome() {
   const ann = s.announcements.slice(0, 3);
   const staffIn = s.staff.filter((x) => x.status === "active" && x.log[0] && !x.log[0].out);
 
-  const status = [
-    { label: "K-Electric", value: live.grid === "On" ? "Grid on" : "Outage", sub: `since ${live.gridSince}`, icon: Zap, ok: live.grid === "On" },
-    { label: "Generator", value: live.generator, sub: `Fuel ${live.fuel}%`, icon: Fuel, ok: true },
-    { label: "Water", value: live.water, sub: "Normal pressure", icon: Droplets, ok: live.water === "Available" },
-    { label: "Underground", value: `${Math.round(live.ugTank)}%`, sub: "≈ 86,000 L", icon: Droplets, ok: live.ugTank > 30, bar: live.ugTank },
-    { label: "Overhead · A", value: `${Math.round(live.ohTank.A)}%`, sub: "Pump auto", icon: Droplets, ok: true, bar: live.ohTank.A },
-    { label: "Lifts", value: `${live.lifts.filter((l) => l.status === "Operational").length}/${live.lifts.length} running`, sub: "B-2 servicing", icon: ArrowUpDown, ok: true },
-    { label: "Security", value: "All clear", sub: `${live.guardsOnDuty} guards on duty`, icon: ShieldCheck, ok: true },
-  ];
+  // Residents only need to hear about building services when something affects them.
+  const notices = [
+    live.grid !== "On" && { text: `K-Electric outage since ${live.gridSince}. Generator is ${live.generator.toLowerCase()}.`, icon: Zap },
+    live.water !== "Available" && { text: `Water supply: ${live.water.toLowerCase()}.`, icon: Droplets },
+  ].filter(Boolean) as { text: string; icon: typeof Zap }[];
 
   return (
     <div className="pt-[max(env(safe-area-inset-top),12px)] lg:pt-8">
@@ -93,28 +89,13 @@ export default function ResidentHome() {
           </h1>
           <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-white/65"><MapPin className="size-3.5" /> {apt.building}, Tower {apt.tower} · Apt {apt.unit} · {apt.area}, Karachi</p>
 
-          {/* live building status */}
-          <div className="mt-5 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[11.5px] font-semibold uppercase tracking-[0.16em] text-white/55"><LiveDot /> Building live</div>
-            <Link href="/resident/building/utilities" className="flex items-center text-[12.5px] font-medium text-white/75 hover:text-white">Details <ChevronRight className="size-3.5" /></Link>
-          </div>
-          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-7 lg:px-0">
-            {status.map((x) => (
-              <div key={x.label} className="w-[128px] shrink-0 rounded-2xl bg-white/[0.07] p-3 ring-1 ring-white/10 backdrop-blur lg:w-auto">
-                <div className="flex items-center justify-between">
-                  <x.icon className="size-4 text-lime-accent" />
-                  <span className={cn("size-1.5 rounded-full", x.ok ? "bg-emerald-400" : "bg-amber-400")} />
-                </div>
-                <div className="mt-2.5 text-[11px] text-white/55">{x.label}</div>
-                <div className="text-[14px] font-semibold tabular leading-tight">{x.value}</div>
-                {x.bar !== undefined ? (
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-lime-accent transition-all duration-1000" style={{ width: `${x.bar}%` }} /></div>
-                ) : (
-                  <div className="mt-0.5 truncate text-[11px] text-white/45">{x.sub}</div>
-                )}
-              </div>
-            ))}
-          </div>
+          {notices.map((n) => (
+            <Link key={n.text} href="/resident/building/utilities" className="mt-4 flex items-center gap-2.5 rounded-2xl bg-white/[0.08] px-3.5 py-2.5 text-[13px] ring-1 ring-white/10 backdrop-blur">
+              <n.icon className="size-4 shrink-0 text-amber-300" />
+              <span className="min-w-0 flex-1">{n.text}</span>
+              <ChevronRight className="size-4 shrink-0 text-white/50" />
+            </Link>
+          ))}
         </div>
       </section>
 
