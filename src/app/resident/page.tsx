@@ -2,23 +2,19 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  BatteryCharging, Bike, Building2, CalendarCheck, ChevronRight, CircleParking, Droplets, Megaphone,
-  Package, Receipt, ShieldCheck, Siren, Sparkles, UserPlus, Users, UtensilsCrossed, Wrench, Zap,
-  LayoutGrid, Copy, MapPin, Phone, Type, UserCheck, FileText,
+  CalendarCheck, ChevronRight, CircleParking, Droplets, 
+  Package, Receipt, ShieldCheck, Siren, UserPlus, Users, Wrench, Zap,
+  LayoutGrid, MapPin, Phone, Type, UserCheck, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDemo } from "@/lib/store";
 import { useLiveUtilities } from "@/lib/live";
 import { APARTMENTS, RESIDENT } from "@/data/seed";
-import { PROVIDERS } from "@/data/catalog";
-import { OFFERS, SELLERS } from "@/data/places";
 import { IMG } from "@/lib/img";
-import { ago, cn, fmtDateTime, pkr } from "@/lib/utils";
+import { cn, pkr } from "@/lib/utils";
 import { Avatar } from "@/components/ui/misc";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Photo } from "@/components/shared/photo";
-import { LiveDot, Section, Stars } from "@/components/shared/kit";
 import { BellButton } from "@/components/resident/shell";
 import { ApartmentSwitcher } from "@/components/resident/apartment-switcher";
 import { PaySheet } from "@/components/resident/pay-sheet";
@@ -40,7 +36,6 @@ export default function ResidentHome() {
   const toggleBig = () => setBig((b) => { try { localStorage.setItem("nestora-big-text", b ? "0" : "1"); } catch {} return !b; });
   const apt = APARTMENTS.find((a) => a.id === s.apartment)!;
   const pending = s.visitors.filter((v) => v.status === "pending" && v.apt === "A-1204");
-  const expected = s.visitors.filter((v) => v.apt === "A-1204" && ["expected", "approved"].includes(v.status)).slice(0, 3);
   const dueBill = s.bills.find((b) => b.status !== "paid");
   const due = dueBill ? dueBill.items.reduce((a, i) => a + i.amount, 0) : 0;
   const parcels = s.parcels.filter((p) => p.apt === "A-1204" && ["awaiting", "reception"].includes(p.status));
@@ -60,8 +55,6 @@ export default function ResidentHome() {
     { href: "/resident/building/documents", label: "Documents", sub: "Bylaws, meetings", icon: FileText },
     { href: "/resident/explore", label: "More services", sub: "Food, repairs, salon", icon: LayoutGrid },
   ];
-  const upcoming = s.bookings.filter((b) => ["Upcoming", "Confirmed", "In Progress"].includes(b.status)).sort((a, b) => +new Date(a.date) - +new Date(b.date));
-  const staffIn = s.staff.filter((x) => x.status === "active" && x.log[0] && !x.log[0].out);
 
   // Residents only need to hear about building services when something affects them.
   const notices = [
@@ -106,7 +99,7 @@ export default function ResidentHome() {
         </div>
       </section>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px] lg:gap-7">
+      <div className="mx-auto mt-5 max-w-3xl">
         <div className="min-w-0">
           {/* Needs your attention — only what affects this home right now */}
           {(pending.length > 0 || dueBill || parcels.length > 0) && (
@@ -163,154 +156,7 @@ export default function ResidentHome() {
           </div>
 
 
-          {/* Upcoming */}
-          <Section title="Upcoming" href="/resident/bookings">
-            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 xl:grid-cols-3">
-              {expected.map((v) => (
-                <Link key={v.id} href="/resident/building/visitors" className="w-[250px] shrink-0 rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift sm:w-auto">
-                  <div className="flex items-center justify-between"><Badge variant="info"><UserPlus /> Visitor</Badge><span className="text-xs text-muted-foreground">{fmtDateTime(v.validFrom)}</span></div>
-                  <div className="mt-3 font-semibold">{v.name}</div>
-                  <div className="text-[13px] text-muted-foreground">{v.purpose}{v.recurring ? ` · ${v.recurring}` : ""}</div>
-                  <div className="mt-3 flex items-center gap-1.5 font-mono text-xs text-pine-700"><ShieldCheck className="size-3.5" /> Pass {v.code}</div>
-                </Link>
-              ))}
-              {upcoming.slice(0, 3).map((b) => (
-                <Link key={b.id} href={`/resident/bookings?id=${b.id}`} className="w-[250px] shrink-0 rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift sm:w-auto">
-                  <div className="flex items-center justify-between"><Badge variant={b.status === "In Progress" ? "lime" : "default"}><CalendarCheck /> {b.status}</Badge><span className="text-xs text-muted-foreground">{fmtDateTime(b.date)}</span></div>
-                  <div className="mt-3 truncate font-semibold">{b.service}</div>
-                  <div className="truncate text-[13px] text-muted-foreground">{b.provider}</div>
-                  <div className="mt-3 text-xs font-medium text-foreground/70">{b.price ? pkr(b.price) : "Free"}{b.recurring ? ` · ${b.recurring}` : ""}</div>
-                </Link>
-              ))}
-            </div>
-          </Section>
-
-          {/* Recommended services */}
-          <Section title="Recommended for your home" href="/resident/explore" subtitle="Trusted by neighbours at Ocean Heights">
-            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-              {PROVIDERS.filter((p) => ["pv-cooltech", "pv-safaipro", "pv-saleem", "pv-greenthumb", "pv-aqua", "pv-pestaway"].includes(p.id)).map((p) => (
-                <Link key={p.id} href={`/resident/explore/provider/${p.id}`} className="group w-[220px] shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition hover:shadow-lift sm:w-auto">
-                  <Photo id={p.cover} w={500} className="aspect-[16/10]" icon={Wrench}>
-                    {p.verified && <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10.5px] font-semibold text-pine-800 backdrop-blur"><ShieldCheck className="size-3" /> Verified</span>}
-                  </Photo>
-                  <div className="p-3.5">
-                    <div className="flex items-center justify-between gap-2"><span className="truncate font-semibold">{p.name}</span><Stars value={p.rating} /></div>
-                    <div className="truncate text-[12.5px] text-muted-foreground">{p.tagline}</div>
-                    <div className="mt-2 text-[12.5px]"><span className="text-muted-foreground">from </span><span className="font-semibold">{pkr(Math.min(...p.services.filter((x) => x.price > 0).map((x) => x.price)))}</span></div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </Section>
-
-          {/* Restaurant offers */}
-          <Section title="Offers around you" href="/resident/offers">
-            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0">
-              {OFFERS.slice(0, 4).map((o) => (
-                <button key={o.id} onClick={() => { navigator.clipboard?.writeText(o.code); toast.success(`Code ${o.code} copied`, { description: `${o.business} · ${o.title}` }); }} className="group relative flex h-[132px] w-[290px] shrink-0 overflow-hidden rounded-2xl text-left shadow-soft sm:w-auto">
-                  <Photo id={o.image} w={600} className="absolute inset-0" icon={UtensilsCrossed} />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
-                  <div className="relative flex flex-col justify-between p-4 text-white">
-                    <div>
-                      <div className="text-[11.5px] font-medium text-white/70">{o.business} · {o.distance}{o.sponsored ? " · Sponsored" : ""}</div>
-                      <div className="mt-1 max-w-[200px] text-lg font-semibold leading-tight">{o.title}</div>
-                    </div>
-                    <span className="flex w-fit items-center gap-1.5 rounded-lg border border-dashed border-white/50 px-2 py-1 font-mono text-xs">{o.code} <Copy className="size-3" /></span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </Section>
-
-          {/* Home chefs */}
-          <Section title="Cooking in your building tonight" href="/resident/food">
-            <div className="grid gap-3 sm:grid-cols-3">
-              {SELLERS.filter((x) => x.apt).map((f) => (
-                <Link key={f.id} href={`/resident/food/${f.id}`} className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3 shadow-soft transition hover:shadow-lift sm:flex-col sm:items-stretch sm:p-0">
-                  <Photo id={f.cover} w={500} className="size-20 shrink-0 rounded-xl sm:aspect-[16/9] sm:size-auto sm:rounded-none" icon={UtensilsCrossed} />
-                  <div className="min-w-0 sm:p-3.5 sm:pt-0">
-                    <div className="truncate font-semibold">{f.name}</div>
-                    <div className="truncate text-[12.5px] text-muted-foreground">{f.kind} · {f.apt} · {f.eta}</div>
-                    <div className="mt-1 flex items-center gap-2"><Stars value={f.rating} /><span className="text-xs text-muted-foreground">({f.reviews})</span></div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </Section>
-
-          {/* Marketplace picks */}
-          <Section title="From your neighbours" href="/resident/marketplace" subtitle="Buy & sell within Ocean Heights">
-            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0">
-              {s.listings.filter((l) => !l.mine && !l.sold).slice(0, 4).map((l) => (
-                <Link key={l.id} href={`/resident/marketplace?id=${l.id}`} className="w-[160px] shrink-0 sm:w-auto">
-                  <Photo id={l.image} w={400} className="aspect-square rounded-2xl" icon={LayoutGrid} />
-                  <div className="mt-2 truncate text-[13.5px] font-medium">{l.title}</div>
-                  <div className="text-[13px] font-semibold text-pine-700">{pkr(l.price)}</div>
-                  <div className="text-[11.5px] text-muted-foreground">{l.sellerApt} · {l.condition}</div>
-                </Link>
-              ))}
-            </div>
-          </Section>
         </div>
-
-        {/* RIGHT RAIL */}
-        <aside className="min-w-0 space-y-5">
-          <Section title="Home activity">
-            <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft">
-              <div className="space-y-3.5">
-                {staffIn.map((st) => (
-                  <div key={st.id} className="flex items-center gap-3">
-                    <Avatar src={st.photo} name={st.name} className="size-9" />
-                    <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{st.name} is inside</div><div className="text-xs text-muted-foreground">{st.role} · arrived {ago(st.log[0].in)}</div></div>
-                    <LiveDot />
-                  </div>
-                ))}
-                {s.notifications.filter((n) => !n.role || n.role === "resident").slice(0, 4).map((n) => (
-                  <Link key={n.id} href={n.href ?? "/resident/notifications"} className="flex items-start gap-3">
-                    <span className={cn("mt-1.5 size-2 shrink-0 rounded-full", n.read ? "bg-sand-300" : "bg-pine-500")} />
-                    <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{n.title}</div><div className="line-clamp-1 text-xs text-muted-foreground">{n.body}</div></div>
-                    <span className="shrink-0 text-[11px] text-muted-foreground">{ago(n.at)}</span>
-                  </Link>
-                ))}
-              </div>
-              <Button variant="soft" size="sm" className="mt-4 w-full" asChild><Link href="/resident/notifications">All notifications</Link></Button>
-            </div>
-          </Section>
-
-          <Section title="Community">
-            <Link href="/resident/building/announcements" className="group relative block h-44 overflow-hidden rounded-2xl shadow-soft">
-              <Photo id={IMG.rooftop} w={700} className="absolute inset-0 transition duration-700 group-hover:scale-105" icon={Megaphone} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                <Badge variant="lime">Saturday · 7 PM</Badge>
-                <div className="mt-2 text-lg font-semibold leading-tight">Community Iftar & Family Night</div>
-                <div className="text-[12.5px] text-white/70">Rooftop terrace · 86 neighbours going</div>
-              </div>
-            </Link>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <Link href="/resident/building/amenities" className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift">
-                <Building2 className="size-5 text-pine-600" />
-                <div className="mt-2 text-sm font-semibold">Book amenities</div>
-                <div className="text-xs text-muted-foreground">Pool, gym, hall</div>
-              </Link>
-              <Link href="/resident/parking" className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift">
-                <CircleParking className="size-5 text-pine-600" />
-                <div className="mt-2 text-sm font-semibold">Guest parking</div>
-                <div className="text-xs text-muted-foreground">4 bays to rent</div>
-              </Link>
-              <Link href="/resident/ev" className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift">
-                <BatteryCharging className="size-5 text-pine-600" />
-                <div className="mt-2 text-sm font-semibold">EV chargers</div>
-                <div className="text-xs text-muted-foreground">2 free at P1</div>
-              </Link>
-              <Link href="/resident/building/staff" className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:shadow-lift">
-                <Bike className="size-5 text-pine-600" />
-                <div className="mt-2 text-sm font-semibold">Staff access</div>
-                <div className="text-xs text-muted-foreground">{s.staff.filter((x) => x.status === "active").length} active passes</div>
-              </Link>
-            </div>
-          </Section>
-        </aside>
       </div>
 
       {dueBill && (
