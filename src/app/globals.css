@@ -1,26 +1,201 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * NESTORA design tokens
+ * Forest green primary, warm off-white surfaces, charcoal type, lime accents.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.875rem;
+
+  --background: #f6f4ef;
+  --foreground: #17201d;
+  --card: #ffffff;
+  --card-foreground: #17201d;
+  --popover: #ffffff;
+  --popover-foreground: #17201d;
+  --primary: #0f3d33;
+  --primary-foreground: #f6f4ef;
+  --secondary: #eeebe4;
+  --secondary-foreground: #17201d;
+  --muted: #efece6;
+  --muted-foreground: #69716d;
+  --accent: #e7f1ea;
+  --accent-foreground: #0f3d33;
+  --destructive: #c0392b;
+  --border: #e5e1d8;
+  --input: #ddd8cd;
+  --ring: #258a70;
+
+  --chart-1: #0f3d33;
+  --chart-2: #2f9e7a;
+  --chart-3: #b5d65a;
+  --chart-4: #d99a1e;
+  --chart-5: #8aa69b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+  --radius-3xl: calc(var(--radius) + 16px);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), Georgia, serif;
+  --font-urdu: var(--font-urdu), serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-pine-950: #06201a;
+  --color-pine-900: #0a2d25;
+  --color-pine-800: #0f3d33;
+  --color-pine-700: #145143;
+  --color-pine-600: #1b6a57;
+  --color-pine-500: #23876d;
+  --color-pine-400: #4dab8c;
+  --color-pine-300: #89cbb1;
+  --color-pine-200: #c1e4d4;
+  --color-pine-100: #e2f2ea;
+  --color-pine-50: #f1f8f4;
+
+  --color-lime-accent: #c4e36b;
+  --color-lime-soft: #eef7d6;
+  --color-sand-50: #fbfaf7;
+  --color-sand-100: #f6f4ef;
+  --color-sand-200: #eeebe4;
+  --color-sand-300: #e2ddd2;
+  --color-charcoal: #17201d;
+
+  --color-amber-warn: #c98407;
+  --color-amber-soft: #fdf3dc;
+  --color-danger: #c0392b;
+  --color-danger-soft: #fbe9e6;
+
+  --shadow-soft: 0 1px 2px rgba(16, 32, 28, 0.04), 0 4px 16px -4px rgba(16, 32, 28, 0.08);
+  --shadow-lift: 0 2px 4px rgba(16, 32, 28, 0.04), 0 16px 40px -12px rgba(16, 32, 28, 0.18);
+  --shadow-ring: 0 0 0 1px rgba(16, 32, 28, 0.06);
+
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+  --animate-rise: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-scan: scan 2.2s ease-in-out infinite;
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.92); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scan {
+    0% { top: 8%; }
+    50% { top: 88%; }
+    100% { top: 8%; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .text-balance { text-wrap: balance; }
+  .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+  .grain {
+    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+.leaflet-container { font-family: inherit; background: #e9eee9; }
+.leaflet-popup-content-wrapper { border-radius: 14px; }
+
+/*
+ * EMAAR OCEANFRONT theme — applied with <html data-theme="emaar">.
+ * Deep Arabian Sea navy primary, champagne-sand accent, ivory surfaces.
+ * Overrides the same tokens, so every screen re-skins without code changes.
+ */
+:root[data-theme="emaar"] {
+  --background: #f7f5f0;
+  --foreground: #141a22;
+  --card-foreground: #141a22;
+  --popover-foreground: #141a22;
+  --primary: #0d2440;
+  --primary-foreground: #f7f5f0;
+  --secondary: #eeeae2;
+  --secondary-foreground: #141a22;
+  --muted: #f0ede6;
+  --muted-foreground: #6b7079;
+  --accent: #eef2f7;
+  --accent-foreground: #0d2440;
+  --border: #e6e1d6;
+  --input: #ddd6c8;
+  --ring: #2a5c8f;
+  --chart-1: #0d2440;
+  --chart-2: #2a5c8f;
+  --chart-3: #c9a56b;
+  --chart-4: #a8653f;
+  --chart-5: #8c9aab;
+
+  --color-pine-950: #071425;
+  --color-pine-900: #0b1e36;
+  --color-pine-800: #0f2a4a;
+  --color-pine-700: #15375f;
+  --color-pine-600: #1d4775;
+  --color-pine-500: #2a5c8f;
+  --color-pine-400: #5281b0;
+  --color-pine-300: #8fb0d0;
+  --color-pine-200: #c6d6e8;
+  --color-pine-100: #e4ecf5;
+  --color-pine-50: #f2f6fa;
+  --color-lime-accent: #d3b47c;
+  --color-lime-soft: #f6efe1;
+  --color-charcoal: #141a22;
+}
+:root[data-theme="emaar"] body { font-feature-settings: "ss01"; }
